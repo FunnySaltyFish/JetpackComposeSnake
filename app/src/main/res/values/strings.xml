@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">JetpackComposeSnake</string>
+    <string name="lost_tip">糟糕，失败了！\n您的分数：%d，历史最佳：%d</string>
+    <string name="retry">再来一次</string>
+    <string name="start_game">开始游戏</string>
+    <string name="selected_assets">选择游戏主题：%s</string>
+</resources>

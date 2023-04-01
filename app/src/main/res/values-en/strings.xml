@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">JetpackComposeSnake</string>
+    <string name="lost_tip">Ops, you lost!\nYour score：%d，best of history：%d</string>
+    <string name="retry">Try Again</string>
+    <string name="start_game">Start Game</string>
+    <string name="selected_assets">Select Snake Assets：%s</string>
+</resources>
