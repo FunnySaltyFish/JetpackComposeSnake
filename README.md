@@ -7,6 +7,10 @@
 
 
 
+https://user-images.githubusercontent.com/46063434/229269027-58e2d941-01be-4c52-a7dc-92213e13c0aa.mp4
+
+
+
 ## 环境
 
 - Gradle 8.0，**这需要 Java17 及以上版本**
@@ -17,6 +21,7 @@
 
 ## MVI
 ![image](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8908b1d93ffe4ad2b4dede97e0a4722c~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.awebp)
+
 MVI 是 Model-View-Intent 的缩写，是一种架构模式，它的核心思想是将 UI 的状态抽象为一个单一的数据流，这个数据流由 View 发出的 Intent 作为输入，经过 Model 处理后，再由 View 显示出来。
 具体到本项目，View 是贪吃蛇的游戏界面，Model 是游戏的逻辑，Intent 是用户和系统的操作，比如开始游戏、更改方向等。
 
