@@ -25,7 +25,7 @@ data class Point(val x: Int, val y: Int) {
 }
 
 @Stable
-data class Snake(val body: LinkedList<Point>, val bodySize: Float, val direction: MoveDirection) {
+data class Snake(val body: LinkedList<Point>, val direction: MoveDirection) {
     val head: Point
         get() = body.first
 

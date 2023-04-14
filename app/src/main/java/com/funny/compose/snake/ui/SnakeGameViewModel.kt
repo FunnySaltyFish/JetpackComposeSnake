@@ -24,7 +24,7 @@ class SnakeGameViewModel : ViewModel(){
             add(Point(10,10))
             add(Point(11,10))
             add(Point(12,10))
-        },20f, MoveDirection.LEFT)
+        }, MoveDirection.LEFT)
     }
 
     // This value will be automatically saved by using Preferences via https://github.com/FunnySaltyFish/ComposeDataSaver
