@@ -4,4 +4,6 @@
     <string name="retry">再来一次</string>
     <string name="start_game">开始游戏</string>
     <string name="selected_assets">选择游戏主题：%s</string>
+    <string name="loading_app_icons">加载图标资源中……</string>
+    <string name="load_app_icons_success">加载图标资源成功！</string>
 </resources>

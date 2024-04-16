@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,8 +25,11 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,13 +37,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.funny.compose.snake.R
 import com.funny.compose.snake.beans.GameAction
 import com.funny.compose.snake.beans.GameState
+import com.funny.compose.snake.beans.Snake
 import com.funny.compose.snake.beans.SnakeAssets
 import com.funny.compose.snake.beans.SnakeState
 import com.funny.compose.snake.beans.ThemeConfig
+import com.funny.compose.snake.utils.toIntOffset
+import com.funny.compose.snake.utils.toIntSize
 import kotlinx.coroutines.delay
 
-internal val LocalSnakeAssets: ProvidableCompositionLocal<SnakeAssets> = staticCompositionLocalOf { SnakeAssets.SnakeAssets1 }
+internal val LocalSnakeAssets: ProvidableCompositionLocal<SnakeAssets> = staticCompositionLocalOf { SnakeAssets.Colored.Style1 }
 private const val TAG = "SnakeGame"
+
+private sealed class DrawType {
+    object Head : DrawType()
+    class Body(val index: Int = 0) : DrawType()
+    object Food : DrawType()
+}
 
 @Composable
 fun SnakeGame(
@@ -76,11 +89,30 @@ fun SnakeGame(
 
 @Composable
 fun ColumnScope.Waiting(dispatchAction: (GameAction) -> Unit) {
-    OutlinedButton(onClick = { dispatchAction(GameAction.StartGame) }) {
+    val snakeAssets by ThemeConfig.savedSnakeAssets
+    val context = LocalContext.current
+    LaunchedEffect(key1 = snakeAssets) {
+        if (snakeAssets is SnakeAssets.Icon) {
+            // 对于 Icon 类型的资源，需要在这里初始化
+            (snakeAssets as SnakeAssets.Icon).init(context = context)
+        }
+    }
+
+    val enabledButton by remember {
+        derivedStateOf {
+            (snakeAssets is SnakeAssets.Icon && (snakeAssets as SnakeAssets.Icon).initialized)
+                    || snakeAssets is SnakeAssets.Colored
+        }
+    }
+
+    OutlinedButton(
+        onClick = { dispatchAction(GameAction.StartGame) },
+        enabled = enabledButton
+    ) {
         Text(text = stringResource(R.string.start_game))
     }
     Spacer(modifier = Modifier.height(16.dp))
-    val snakeAssets by ThemeConfig.savedSnakeAssets
+
     var expanded by remember { mutableStateOf(false)  }
     OutlinedButton(onClick = { expanded = true }) {
         Text(text = stringResource(id = R.string.selected_assets, snakeAssets))
@@ -107,8 +139,8 @@ fun ColumnScope.Playing(
         modifier = Modifier
             .fillMaxSize()
             .square()
-            .onGloballyPositioned {
-                val size = it.size
+            .onSizeChanged {
+                val size = it
                 dispatchAction(GameAction.ChangeSize(size.width to size.height))
             }
             .detectDirectionalMove {
@@ -137,20 +169,20 @@ fun ColumnScope.Lost(
 
 private fun DrawScope.drawSnake(snakeState: SnakeState, snakeAssets: SnakeAssets) {
     val size = snakeState.blockSize
-    snakeState.snake.body.forEach {
-        val offset = it.asOffset(snakeState.blockSize)
-        if (it == snakeState.snake.head) {
-            drawRect(snakeAssets.headColor, offset, size)
+    snakeState.snake.body.forEachIndexed { index, point ->
+        val offset = point.asOffset(snakeState.blockSize)
+        if (point == snakeState.snake.head) {
+            drawOneBlock(offset, size, DrawType.Head, snakeAssets, snakeState.snake)
         } else {
-            drawRect(snakeAssets.bodyColor, offset, size)
+            drawOneBlock(offset, size, DrawType.Body(index), snakeAssets, snakeState.snake)
         }
     }
 }
 
-fun DrawScope.drawFood(snakeState: SnakeState, snakeAssets: SnakeAssets) {
+private fun DrawScope.drawFood(snakeState: SnakeState, snakeAssets: SnakeAssets) {
     val size = snakeState.blockSize
     val offset = snakeState.food.asOffset(snakeState.blockSize)
-    drawRect(snakeAssets.foodColor, offset, size)
+    drawOneBlock(offset, size, DrawType.Food, snakeAssets, snakeState.snake)
 }
 
 private fun DrawScope.drawBackgroundGrid(snakeState: SnakeState, snakeAssets: SnakeAssets) {
@@ -170,5 +202,30 @@ private fun DrawScope.drawBackgroundGrid(snakeState: SnakeState, snakeAssets: Sn
             end = Offset(width.toFloat(), y.toFloat()),
             strokeWidth = 1f
         )
+    }
+}
+
+private fun DrawScope.drawOneBlock(offset: Offset, size: Size, drawType: DrawType, snakeAssets: SnakeAssets, snake: Snake) {
+    when (snakeAssets) {
+        is SnakeAssets.Colored ->
+            when (drawType) {
+                is DrawType.Head -> drawRect(snakeAssets.headColor, offset, size)
+                is DrawType.Body -> drawRect(snakeAssets.bodyColor, offset, size)
+                is DrawType.Food -> drawRect(snakeAssets.foodColor, offset, size)
+            }
+
+        is SnakeAssets.Icon -> {
+            val index = when (drawType) {
+                is DrawType.Head -> 0
+                is DrawType.Body -> drawType.index
+                is DrawType.Food -> snake.body.size
+            }
+            drawImage(
+                image = snakeAssets.getIcon(index),
+                dstOffset = offset.toIntOffset(),
+                dstSize = size.toIntSize(),
+                filterQuality = FilterQuality.Low
+            )
+        }
     }
 }

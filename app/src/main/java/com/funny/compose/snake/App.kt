@@ -13,7 +13,7 @@ class App: Application() {
         DataSaverUtils = DataSaverPreferences(this)
 
         // SnakeAssets 使我们自定义的类型，因此先注册一下转换器，能让它保存时自动转化为 String，读取时自动恢复
-        DataSaverConverter.registerTypeConverters(save = SnakeAssets.Saver, restore = SnakeAssets.Restorer)
+        DataSaverConverter.registerTypeConverters<SnakeAssets>(save = SnakeAssets.Saver, restore = SnakeAssets.Restorer)
     }
 
     companion object {
