@@ -8,7 +8,7 @@ Download link: [app-debug.apk](app-debug.apk)
 | ![](screenshots/start_game.jpg) | ![](screenshots/lost_game.jpg) |
 | ------------------------------- | ------------------------------ |
 
-https://user-images.githubusercontent.com/46063434/229269027-58e2d941-01be-4c52-a7dc-92213e13c0aa.mp4
+https://github.com/FunnySaltyFish/JetpackComposeSnake/assets/46063434/40cb2789-7578-464a-8830-3d2ebf848c81
 
 
 ## Environment
